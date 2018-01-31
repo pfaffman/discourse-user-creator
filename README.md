@@ -13,7 +13,7 @@ The following environment variables need to be set
     DISCOURSE_API_USER=system
     DISCOURSE_PASSWORD="Thisisstrangelysafepassword"
 
-The script will read `CREATE_USER_DEFAULTS` file the script will read them from there, probably deleting them if you set them elsewhere, arguably a bug.
+The script will read these values from `CREATE_USER_DEFAULTS`, probably deleting them if you set them elsewhere, arguably a bug.
 
 Get your API key from https://yoursite/admin/api/keys
 
