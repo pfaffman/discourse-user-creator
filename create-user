@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+ERROR=0
+if [ -f CREATE_USER_DEFAULTS ]
+then
+   source CREATE_USER_DEFAULTS
+fi
+if  [ "$#" -lt "4" ]
+then
+    ERROR=1
+    echo "Usage: $0 'Real Name' email user_name group_id password "
+    echo
+    echo "      Password can be omitted if '$DISCOURSE_PASSWORD' is set."
+    echo
+    if [ -d .git ]
+    then
+	echo "To check for new version, type "
+	echo
+	echo "     git pull"
+    fi
+fi
+if [ -z "$DISCOURSE_API_KEY" ]
+then
+    echo "ERROR: DISCOURSE_API_KEY not set"
+    ERROR=1
+fi
+if [ -z "$DISCOURSE_URL" ]
+then
+    echo "ERROR: DISCOURSE_URL not set"
+    ERROR=1
+fi
+if [ -z "$DISCOURSE_URL" ] && [ -z $5 ]
+then
+    echo "ERROR: DISCOURSE_PASSWORD not set and password not included on command line"
+    ERROR=1
+fi
+if [ $ERROR == 1 ]
+then
+    echo
+    echo "ERRORS found, exiting."
+    exit
+fi
+NAME=$1
+USERNAME=$3
+EMAIL=$2
+GROUP=$4
+if [ ! -z "$5" ]
+then
+    PASSWORD="$5"
+else
+  if [ ! -z "$DISCOURSE_PASSWORD" ]
+  then
+      PASSWORD=$DISCOURSE_PASSWORD
+  fi
+fi
+
+echo -n "Creating user: $USERNAME "
+
+OUTPUT=`curl -s -X POST --data "active=true&name=$NAME&username=$USERNAME&email=$EMAIL&password=$PASSWORD&api_key=$DISCOURSE_API_KEY&api_username=$DISCOURSE_API_USER" $DISCOURSE_URL/users`
+USER_ID=`echo $OUTPUT |cut -d , -f 4 | cut -d : -f 2 |cut -d } -f 1`
+echo -n "user $USERNAME created."
+#echo -n "... deactivating"
+OUTPUT=`curl -s -X PUT "$DISCOURSE_URL/admin/users/$USER_ID/deactivate.json?api_key=$DISCOURSE_API_KEY&api_username=$DISCOURSE_API_USER"`
+#echo -n $OUTPUT
+#echo -n "... activating "
+echo -n " . "
+OUTPUT=`curl -s -X PUT "$DISCOURSE_URL/admin/users/$USER_ID/activate.json?api_key=$DISCOURSE_API_KEY&api_username=$DISCOURSE_API_USER"`
+#echo -n $OUTPUT
+echo -n " . "
+# add to group
+echo -n "Adding to group $GROUP. . . "
+OUTPUT=`curl -s -X PUT "$DISCOURSE_URL/groups/$GROUP/members.json?api_key=$DISCOURSE_API_KEY&api_username=$DISCOURSE_API_USER&usernames=$USERNAME"`
+echo $OUTPUT
+exit

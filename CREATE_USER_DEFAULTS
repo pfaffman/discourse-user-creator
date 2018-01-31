@@ -1,0 +1,4 @@
+DISCOURSE_URL=https://yourdiscoursesite.com
+DISCOURSE_API_KEY=get from https://ovh.ltcmp.net/admin/api/keys
+DISCOURSE_API_USER=system
+DISCOURSE_PASSWORD="Thisisstrangelysafepassword"
