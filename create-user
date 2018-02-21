@@ -72,6 +72,7 @@ OUTPUT=`curl -s -X PUT "$DISCOURSE_URL/admin/users/$USER_ID/activate.json?api_ke
 echo -n " . "
 # add to group
 if [ ! -z "$GROUP" ]
+then
    echo -n "Adding to group $GROUP. . . "
    OUTPUT=`curl -s -X PUT "$DISCOURSE_URL/groups/$GROUP/members.json?api_key=$DISCOURSE_API_KEY&api_username=$DISCOURSE_API_USER&usernames=$USERNAME"`
    echo $OUTPUT
